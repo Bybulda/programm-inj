@@ -20,5 +20,6 @@ public class Main {
         eventAggregator.registerObserver(audit);
         Configuration conf = new Configurator();
         DataBaseListner listner = new DataBaseListner(eventAggregator, conf.getConfig());
+        listner.run();
     }
 }
