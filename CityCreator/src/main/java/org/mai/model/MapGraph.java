@@ -63,10 +63,10 @@ public class MapGraph {
 
     }
 
-    public void changeRoadCost(String from, String to, int cost){
+    public void changeRoadCost(String from, String to, int oldCost, int newCost){
         for(Road road : roads){
-            if(road.getFrom().equals(from) && road.getTo().equals(to) && road.getCost() == cost){
-                road.setCost(cost);
+            if(road.getFrom().equals(from) && road.getTo().equals(to) && road.getCost() == oldCost){
+                road.setCost(newCost);
                 return;
             }
         }
