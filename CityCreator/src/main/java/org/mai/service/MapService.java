@@ -1,5 +1,6 @@
 package org.mai.service;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.mai.model.HistoryManager;
 import org.mai.model.MapGraph;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 @NoArgsConstructor
 public class MapService {
 
+    @Getter
     private final MapGraph mapGraph = new MapGraph();
     private final HistoryManager manager = new HistoryManager();
 

@@ -1,10 +1,11 @@
 package org.mai.model;
 
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 public class City {

@@ -1,7 +1,6 @@
 package org.mai.pattern.impl;
 
 import lombok.AllArgsConstructor;
-import org.mai.model.City;
 import org.mai.model.MapGraph;
 import org.mai.pattern.interfaces.Command;
 
