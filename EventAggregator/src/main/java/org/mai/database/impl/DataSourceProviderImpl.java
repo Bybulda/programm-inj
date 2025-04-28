@@ -2,7 +2,7 @@ package org.mai.database.impl;
 
 import com.typesafe.config.Config;
 import com.zaxxer.hikari.HikariDataSource;
-import org.mai.database.intrf.DataSourceProvider;
+import org.mai.database.DataSourceProvider;
 
 import javax.sql.DataSource;
 

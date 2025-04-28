@@ -1,8 +1,8 @@
 package org.mai;
 
-import org.mai.config.Configurator;
-import org.mai.config.intrf.Configuration;
-import org.mai.database.DataBaseListner;
+import org.mai.config.impl.Configurator;
+import org.mai.config.Configuration;
+import org.mai.database.impl.DataBaseListner;
 import org.mai.pattern.EventAggregator;
 import org.mai.pattern.Observer;
 import org.mai.pattern.impl.AggregatorImpl;

@@ -1,9 +1,9 @@
-package org.mai.config;
+package org.mai.config.impl;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import lombok.NoArgsConstructor;
-import org.mai.config.intrf.Configuration;
+import org.mai.config.Configuration;
 
 @NoArgsConstructor
 public class Configurator implements Configuration {

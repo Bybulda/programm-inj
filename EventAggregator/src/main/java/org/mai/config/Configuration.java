@@ -1,4 +1,4 @@
-package org.mai.config.intrf;
+package org.mai.config;
 
 import com.typesafe.config.Config;
 

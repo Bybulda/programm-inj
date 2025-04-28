@@ -1,7 +1,6 @@
-package org.mai.database.intrf;
+package org.mai.database;
 
 import com.typesafe.config.Config;
-import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 

@@ -1,9 +1,7 @@
-package org.mai.database;
+package org.mai.database.impl;
 
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
-import org.mai.config.Configurator;
-import org.mai.database.impl.DataSourceProviderImpl;
 import org.mai.pattern.EventAggregator;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;

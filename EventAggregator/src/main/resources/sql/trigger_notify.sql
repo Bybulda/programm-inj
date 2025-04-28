@@ -18,6 +18,6 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS trigger_user_change ON users;
 
 CREATE TRIGGER trigger_user_change
-    AFTER INSERT OR UPDATE ON users
+    AFTER INSERT OR UPDATE OR DELETE ON users
     FOR EACH ROW
 EXECUTE FUNCTION notify_user_change();
