@@ -10,4 +10,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class City {
     private String name;
+    private int x;
+    private int y;
 }

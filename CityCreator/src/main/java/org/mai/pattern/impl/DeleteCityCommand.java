@@ -8,6 +8,8 @@ import org.mai.pattern.interfaces.Command;
 public class DeleteCityCommand implements Command {
     private MapGraph graph;
     private String cityName;
+    private int x;
+    private int y;
 
 
     @Override
@@ -17,7 +19,7 @@ public class DeleteCityCommand implements Command {
 
     @Override
     public void undo() {
-        graph.addCityToMap(cityName);
+        graph.addCityToMap(cityName, x, y);
     }
 
     @Override

@@ -15,9 +15,9 @@ public class MapController {
     private final MapService mapService;
 
     @PostMapping("/city")
-    public ResponseEntity<?> addCity(@RequestParam String name) {
+    public ResponseEntity<?> addCity(@RequestParam String name, @RequestParam int x, @RequestParam int y) {
         try {
-            mapService.addCity(name);
+            mapService.addCity(name, x, y);
             return ResponseEntity.ok("City added");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -28,7 +28,7 @@ public class MapController {
     @DeleteMapping("/city/{name}")
     public ResponseEntity<?> deleteCity(@PathVariable String name) {
         try {
-            mapService.deleteCity(name);
+            mapService.deleteCity(name, 0, 0);
             return ResponseEntity.ok("City deleted");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

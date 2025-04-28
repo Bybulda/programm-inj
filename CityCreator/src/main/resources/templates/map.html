@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Интерактивная карта городов</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+        }
+        #toolbar {
+            background: #e0e0e0;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        #mapCanvas {
+            width: 100vw;
+            height: calc(100vh - 60px);
+            display: block;
+            background: #fdfdfd;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+<div id="toolbar">
+    <button onclick="saveGraph()">Сохранить граф</button>
+    <button onclick="loadGraph()">Загрузить граф</button>
+    <input type="file" id="fileInput" style="display:none" onchange="handleFile(event)">
+    <button onclick="startAddCity()">Добавить город</button>
+    <button onclick="renameCity()">Переименовать город</button>
+    <button onclick="deleteCity()">Удалить город</button>
+    <button onclick="addRoad()">Добавить дорогу</button>
+    <button onclick="editRoad()">Изменить дорогу</button>
+    <button onclick="deleteRoad()">Удалить дорогу</button>
+    <button onclick="undo()">Undo</button>
+    <button onclick="redo()">Redo</button>
+</div>
+<canvas id="mapCanvas"></canvas>
+<script>
+    const canvas = document.getElementById('mapCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let cities = {}; // { name: { x, y } }
+    let roads = [];  // { from, to, cost }
+
+    let isAddingCity = false;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - document.getElementById('toolbar').offsetHeight;
+        draw();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    canvas.addEventListener('click', (e) => {
+        if (!isAddingCity) return;
+        const name = prompt('Введите имя города:');
+        if (!name) return;
+        const x = e.offsetX;
+        const y = e.offsetY;
+        fetch(`/api/map/city?name=${encodeURIComponent(name)}&x=${x}&y=${y}`, { method: 'POST' })
+            .then(res => {
+                if (res.ok) {
+                    loadMap();
+                } else {
+                    alert('Ошибка при добавлении города.');
+                }
+            });
+        isAddingCity = false;
+    });
+
+    function startAddCity() {
+        isAddingCity = true;
+    }
+
+    function saveGraph() {
+        const graphData = {
+            graph: {},
+            roads: roads
+        };
+
+        for (const [name, pos] of Object.entries(cities)) {
+            graphData.graph[name] = {
+                name: name,
+                x: pos.x,
+                y: pos.y
+            };
+        }
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(graphData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "city_map.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    function loadGraph() {
+        document.getElementById('fileInput').click();
+    }
+
+    function handleFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            const data = JSON.parse(content);
+
+            const graph = data.graph;
+            const roadList = data.roads;
+
+            cities = {};
+            for (const name in graph) {
+                const city = graph[name];
+                cities[name] = { x: city.x, y: city.y };
+            }
+            roads = roadList;
+            draw();
+        };
+        reader.readAsText(file);
+    }
+
+
+    function renameCity() {
+        const from = prompt('Старое имя города:');
+        const to = prompt('Новое имя города:');
+        if (!from || !to) return;
+        fetch(`/api/map/city?oldName=${from}&newName=${to}`, { method: 'PUT' })
+            .then(() => loadMap());
+    }
+
+    function deleteCity() {
+        const name = prompt('Имя города для удаления:');
+        if (!name) return;
+        fetch(`/api/map/city/${name}`, { method: 'DELETE' })
+            .then(() => loadMap());
+    }
+
+    function addRoad() {
+        const from = prompt('Город ОТКУДА:');
+        const to = prompt('Город КУДА:');
+        const cost = prompt('Стоимость:');
+        if (!from || !to || !cost) return;
+        fetch('/api/map/road', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from, to, cost: Number(cost) })
+        }).then(() => loadMap());
+    }
+
+    function editRoad() {
+        const from = prompt('Город ОТКУДА:');
+        const to = prompt('Город КУДА:');
+        const oldCost = prompt('Старая стоимость:');
+        const newCost = prompt('Новая стоимость:');
+        if (!from || !to || !oldCost || !newCost) return;
+        fetch(`/api/map/road?from=${from}&to=${to}&oldCost=${oldCost}&newCost=${newCost}`, { method: 'PUT' })
+            .then(() => loadMap());
+    }
+
+    function deleteRoad() {
+        const from = prompt('Город ОТКУДА:');
+        const to = prompt('Город КУДА:');
+        const cost = prompt('Стоимость:');
+        if (!from || !to || !cost) return;
+        fetch('/api/map/road', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from, to, cost: Number(cost) })
+        }).then(() => loadMap());
+    }
+
+    function undo() {
+        fetch('/api/map/undo', { method: 'POST' }).then(() => loadMap());
+    }
+
+    function redo() {
+        fetch('/api/map/redo', { method: 'POST' }).then(() => loadMap());
+    }
+
+    function loadMap() {
+        fetch('/api/map')
+            .then(res => res.json())
+            .then(data => {
+                const graph = data.graph;
+                const roadList = data.roads;
+
+                cities = {};
+                for (const name in graph) {
+                    const city = graph[name];
+                    cities[name] = { x: city.x, y: city.y };
+                }
+                roads = roadList;
+                draw();
+            });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const road of roads) {
+            const from = cities[road.from];
+            const to = cities[road.to];
+            if (from && to) {
+                ctx.beginPath();
+                ctx.moveTo(from.x, from.y);
+                ctx.lineTo(to.x, to.y);
+                ctx.strokeStyle = 'gray';
+                ctx.stroke();
+                const mx = (from.x + to.x) / 2;
+                const my = (from.y + to.y) / 2;
+                ctx.fillStyle = 'black';
+                ctx.fillText(road.cost, mx + 5, my - 5);
+            }
+        }
+        for (const [name, pos] of Object.entries(cities)) {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 10, 0, 2 * Math.PI);
+            ctx.fillStyle = '#3498db';
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = 'black';
+            ctx.fillText(name, pos.x + 12, pos.y + 4);
+        }
+    }
+
+    loadMap();
+</script>
+</body>
+</html>

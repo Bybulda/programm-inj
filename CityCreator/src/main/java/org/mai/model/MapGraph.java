@@ -17,11 +17,11 @@ public class MapGraph {
     private HashMap<String, City> graph = new HashMap<>();
     private List<Road> roads = new ArrayList<>();
 
-    public void addCityToMap(String name){
+    public void addCityToMap(String name, int x, int y){
         if(graph.containsKey(name)){
             throw new GraphContainsCityNameException(name);
         }
-        graph.put(name, new City(name));
+        graph.put(name, new City(name, x, y));
     }
 
     public void deleteCityFromMap(String name){

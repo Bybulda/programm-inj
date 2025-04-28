@@ -2,6 +2,7 @@ package org.mai.service;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.mai.model.City;
 import org.mai.model.HistoryManager;
 import org.mai.model.MapGraph;
 import org.mai.pattern.impl.*;
@@ -16,14 +17,19 @@ public class MapService {
     private final MapGraph mapGraph = new MapGraph();
     private final HistoryManager manager = new HistoryManager();
 
-    public void addCity(String city) {
-        Command addCity = new AddCityCommand(mapGraph, city);
+    public void addCity(String city, int x, int y) {
+        Command addCity = new AddCityCommand(mapGraph, city, x, y);
         manager.execute(addCity);
     }
 
-    public void deleteCity(String city) {
-        Command deleteCity = new DeleteCityCommand(mapGraph, city);
-        manager.execute(deleteCity);
+    public void deleteCity(String city, int x, int y) {
+        City cityG = mapGraph.getGraph().getOrDefault(city, null);
+        if (cityG != null) {
+            x = cityG.getX();
+            y = cityG.getY();
+            Command deleteCity = new DeleteCityCommand(mapGraph, city, x, y);
+            manager.execute(deleteCity);
+        }
     }
 
     public void changeCityName(String oldName, String newName) {
